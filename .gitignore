@@ -1,0 +1,6 @@
+venv-sf/
+venv-sfl/
+build/
+dist/
+__pycache__/
+.cache/

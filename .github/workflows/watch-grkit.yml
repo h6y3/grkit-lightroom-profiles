@@ -1,0 +1,43 @@
+name: Watch GRKit
+
+# Weekly report-only run of update.sh. Opens (or comments on) an issue when GRKit's effects/
+# changed since the pin in pins.env, or its recipes no longer match ours. Rebuilding stays local
+# because bakes differ slightly across platforms.
+on:
+  schedule:
+    - cron: "17 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run update.sh
+        id: update
+        run: |
+          set +e
+          ./update.sh > report.txt 2>&1
+          status=$?
+          cat report.txt
+          if [ $status -ne 0 ] || grep -q 'GRKit effects changed:' report.txt; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Open or update issue
+        if: steps.update.outputs.found == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="GRKit update available"
+          body=$(printf 'Output of `./update.sh` (run %s):\n\n```\n%s\n```\n\nTo apply: `./update.sh --apply`, review, commit, then `./release.sh`.' \
+            "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" "$(cat report.txt)")
+          num=$(gh issue list --state open --search "in:title \"$title\"" --json number --jq '.[0].number')
+          if [ -n "$num" ]; then
+            gh issue comment "$num" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi
