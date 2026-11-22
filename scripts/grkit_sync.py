@@ -1,7 +1,8 @@
 """Keep this repo in step with a GRKit checkout (effects/NOTICE.md, effects/sources/manifest.json).
 
-usage: grkit_sync.py pins GRKIT_DIR    print shell assignments for the library pins in GRKit's manifest
-       grkit_sync.py check GRKIT_DIR   exit 1 if GRKit's recipes or catalog differ from ours
+usage: grkit_sync.py pins GRKIT_DIR       print shell assignments for the library pins in GRKit's manifest
+       grkit_sync.py film-luts GRKIT_DIR  print "EFFECT_ID URL SHA256" for each Film LUTs Collection look
+       grkit_sync.py check GRKIT_DIR      exit 1 if GRKit's recipes or catalog differ from ours
 """
 import ast
 import json
@@ -24,13 +25,21 @@ def assigned(path: Path, name: str):
 
 
 if mode == "pins":
-    for var, key in (("SF", "spektrafilm"), ("SFL", "spectral_film_lut"), ("T3M", "t3mujinpack")):
+    for var, key in (("SF", "spektrafilm"), ("SFL", "spectral_film_lut"), ("T3M", "t3mujinpack"), ("FL", "film_luts")):
         print(f"{var}_REPO={gens[key]['repository']}")
         print(f"{var}_REV={gens[key]['revision']}")
     (hp5,) = [v["upstream"] for k, v in manifest["luts"].items() if v["generator"] == "t3mujinpack"]
     t3m = gens["t3mujinpack"]
     raw = t3m["repository"].replace("github.com", "raw.githubusercontent.com")
     print(f"T3M_URL='{raw}/{t3m['revision']}/{quote(hp5)}'")
+    sys.exit()
+
+if mode == "film-luts":
+    fl = gens["film_luts"]
+    raw = fl["repository"].replace("github.com", "raw.githubusercontent.com")
+    for name, v in sorted(manifest["luts"].items()):
+        if v["generator"] == "film_luts":
+            print(Path(name).stem, f"{raw}/{fl['revision']}/{quote(v['upstream'])}", v["sha256"])
     sys.exit()
 
 problems = []

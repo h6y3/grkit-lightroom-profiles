@@ -1,7 +1,7 @@
 """Wrap every baked LUT as a named Lightroom profile, then decode each profile to check it.
 
 usage: make_profiles.py BUILD_PP_DIR OUT_DIR
-Expects sf/ and t3m/ cubes in ProPhoto gamma 1.8 and sfl/ cubes in linear Rec.2020.
+Expects sf/, t3m/ and fl/ cubes in ProPhoto gamma 1.8 and sfl/ cubes in linear Rec.2020.
 """
 import os
 import sys
@@ -29,6 +29,9 @@ NAMES = {
     "kodachrome-64-v1": "Kodachrome 64",
     "velvia-100-v1": "Velvia 100",
     "ektachrome-e100-v1": "Ektachrome E100",
+    "c200-premier-v1": "Fujicolor C200",
+    "ultramax-400-ultra-v1": "UltraMax 400",
+    "provia-100f-v1": "Provia 100F",
     "trix-400-mono-v1": "Tri-X 400",
     "red-filter-mono-v1": "Tri-X 400 Red Filter",
     "aerocolor-iv-v1": "Aerocolor IV",
@@ -36,6 +39,15 @@ NAMES = {
     "instax-v1": "Instax",
     "double-x-5222-mono-v1": "Double-X 5222",
     "hp5-plus-400-mono-v1": "HP5 Plus 400",
+    "neopan-acros-100-v1": "Neopan Acros",
+    "t-max-400-v1": "T-Max 400",
+    "delta-100-v1": "Delta 100",
+    "xp2-super-v1": "XP2 Super",
+    "astia-100f-v1": "Astia 100F",
+    "precisa-100-v1": "Precisa 100",
+    "portra-160-vc-v1": "Portra 160 VC",
+    "fuji-160c-v1": "Fuji 160C",
+    "vista-200-v1": "Vista 200",
 }
 SOURCES = {  # build subdirectory -> (profile group, copyright line)
     "sf": ("Film (spektrafilm)",
@@ -43,6 +55,8 @@ SOURCES = {  # build subdirectory -> (profile group, copyright line)
     "sfl": ("Film (Spectral Film LUT)",
             f"LUT by Spectral Film LUT {os.environ['SFL_VERSION']}, Jan Lohse, MIT License."),
     "t3m": ("Film (t3mujinpack)", "Look from t3mujinpack, Joao Almeida, MIT License."),
+    "fl": ("Film (Film LUTs Collection)",
+           "Look from the Film LUTs Collection (G'MIC film emulations), Yahia Angelo, MIT License."),
 }
 
 PP = colour.RGB_COLOURSPACES["ProPhoto RGB"]

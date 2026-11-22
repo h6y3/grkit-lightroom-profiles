@@ -38,23 +38,34 @@ venv venv-sf "$SF_REPO" "$SF_REV"
 venv venv-sfl "$SFL_REPO" "$SFL_REV"
 HP5=$CACHE/hp5-$T3M_REV.png
 [ -f "$HP5" ] || curl -fsSL -o "$HP5" "$T3M_URL"
+# Film LUTs Collection cubes, named by the sha256 GRKit's manifest records for them.
+mkdir -p "$CACHE/film-luts"
+FL_LOOKS=()
+while read -r id url sha; do
+  f=$CACHE/film-luts/$sha.cube
+  [ -f "$f" ] || { curl -fsSL -o "$f.tmp" "$url" && mv "$f.tmp" "$f"; }
+  echo "$sha  $f" | shasum -a 256 -c -s || { echo "$url does not match GRKit's sha256" >&2; rm -f "$f"; exit 1; }
+  FL_LOOKS+=("$id=$f")
+done < <(python3 -I scripts/grkit_sync.py film-luts "$CACHE/grkit")
 
 export SF_VERSION=$(venv-sf/bin/python -c "import importlib.metadata as m; print(m.version('spektrafilm'))")
 export SFL_VERSION=$(venv-sfl/bin/python -c "import importlib.metadata as m; print(m.version('spectral_film_lut'))")
-export SF_REV SFL_REV GRKIT_REV T3M_REV
+export SF_REV SFL_REV GRKIT_REV T3M_REV FL_REV
 
 # Exposure: spektrafilm source white at +2.47 stops (gain 1.0; the 0.3.4 default is ~1.5 stops bright
 # for ProPhoto input). Spectral Film LUT offsets came from scripts/calibrate.py (18% gray -> 18% gray).
 SF_FILMS="portra-400-endura-v1 gold-200-premier-v1 ektar-100-edge-v1 pro-400h-crystal-v1 xtra-400-crystal-v1
-vision3-250d-2383-v1 vision3-500t-supra-v1 portra-800-push2-v1 kodachrome-64-v1 velvia-100-v1 ektachrome-e100-v1"
+vision3-250d-2383-v1 vision3-500t-supra-v1 portra-800-push2-v1 kodachrome-64-v1 velvia-100-v1 ektachrome-e100-v1
+c200-premier-v1 ultramax-400-ultra-v1 provia-100f-v1"
 export SF_STOPS=$(python3 -c "import json,sys;print(json.dumps({k:'2.47' for k in sys.argv[1:]}))" $SF_FILMS)
 export SFL_EXP='{"trix-400-mono-v1":0.8125,"red-filter-mono-v1":0.4688,"aerocolor-iv-v1":0.0938,
 "eterna-500t-3523xd-v1":0.0625,"instax-v1":-0.5625,"double-x-5222-mono-v1":0.5312}'
 
-rm -rf build && mkdir -p build/pp/sf build/pp/sfl build/pp/t3m build/profiles
+rm -rf build && mkdir -p build/pp/sf build/pp/sfl build/pp/t3m build/pp/fl build/profiles
 venv-sf/bin/python -I scripts/bake_sf_pp.py "$R/build/pp/sf"
 (cd build/pp/sfl && "$R/venv-sfl/bin/python" -I "$R/scripts/bake_sfl_pp.py" "$R/build/pp/sfl")
-venv-sfl/bin/python -I scripts/bake_hp5_pp.py "$HP5" "$R/build/pp/t3m"
+venv-sfl/bin/python -I scripts/bake_display_pp.py "$R/build/pp/t3m" "hp5-plus-400-mono-v1=$HP5"
+venv-sfl/bin/python -I scripts/bake_display_pp.py "$R/build/pp/fl" "${FL_LOOKS[@]}"
 venv-sfl/bin/python -I scripts/make_profiles.py "$R/build/pp" "$R/build/profiles"
 venv-sfl/bin/python -I scripts/check_gray.py "$R/build/pp"
 venv-sfl/bin/python -I scripts/contact_sheet.py "$R/build/profiles" "$R/docs/looks.png"

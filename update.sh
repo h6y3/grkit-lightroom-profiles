@@ -32,7 +32,7 @@ fi
 # Informational: library commits newer than the ones GRKit has adopted.
 git -C $D checkout -q --detach "$NEW"
 eval "$(python3 -I scripts/grkit_sync.py pins $D)"
-for lib in SF SFL T3M; do
+for lib in SF SFL T3M FL; do
   repo=${lib}_REPO rev=${lib}_REV
   head=$(git ls-remote "${!repo}" HEAD | cut -f1)
   [ "$head" = "${!rev}" ] || echo "note: ${!repo} HEAD ${head:0:7} is newer than GRKit's pin ${!rev:0:7}"

@@ -28,6 +28,7 @@ $COUNT Lightroom / Camera Raw profiles built from GRKit's film recipes.
 | spektrafilm $SF_VERSION | [\`${SF_REV:0:7}\`]($SF_REPO/tree/$SF_REV) |
 | Spectral Film LUT $SFL_VERSION | [\`${SFL_REV:0:7}\`]($SFL_REPO/tree/$SFL_REV) |
 | t3mujinpack | [\`${T3M_REV:0:7}\`]($T3M_REPO/tree/$T3M_REV) |
+| Film LUTs Collection | [\`${FL_REV:0:7}\`]($FL_REPO/tree/$FL_REV) |
 
 Import: Lightroom Classic Develop > Profile Browser > "+" > Import Profiles, and select the zip.
 EOF

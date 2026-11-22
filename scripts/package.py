@@ -17,19 +17,21 @@ TOP = "GRKit Film Profiles/"
 README = f"""GRKit film looks as Lightroom / Camera Raw creative profiles ({{n}} profiles)
 
 Unofficial. Built from the film recipes of GRKit (github.com/ahonn/GRKit, git {E['GRKIT_REV'][:7]}).
-Not affiliated with GRKit, Adobe, Kodak, Fujifilm, or Ilford.
+Not affiliated with GRKit, Adobe, Kodak, Fujifilm, Ilford, or Agfa.
 
 Install
 - Lightroom Classic: Develop > Profile Browser > "+" > Import Profiles, select this zip or the .xmp files.
 - Lightroom (cloud/desktop): File > Import Profiles & Presets.
 - Camera Raw: Presets panel > "..." > Import Profiles & Presets.
-They appear in three groups: "Film (spektrafilm)", "Film (Spectral Film LUT)" and "Film (t3mujinpack)".
+They appear in four groups: "Film (spektrafilm)", "Film (Spectral Film LUT)", "Film (t3mujinpack)"
+and "Film (Film LUTs Collection)".
 
 Use
 - Set exposure first. Each profile maps 18% gray to 18% gray, so a well-exposed image keeps its brightness.
 - Selecting one replaces your current profile (Lightroom applies one profile at a time).
 - The Amount slider runs 0-200. Start near 50-70; the film contrast is strong.
-- B&W films (Tri-X, Tri-X Red Filter, Double-X, HP5) output neutral gray but leave Treatment set to Color.
+- B&W films (Tri-X, Tri-X Red Filter, Double-X, HP5, Neopan Acros, T-Max 400, Delta 100, XP2 Super)
+  output neutral gray but leave Treatment set to Color.
 - No grain or halation. Add grain with Lightroom's Effects > Grain.
 
 How they were made
@@ -39,17 +41,19 @@ How they were made
 - Spectral Film LUT {SFL}: per-film exposure offset so 18% gray maps to 18% gray.
 - t3mujinpack (git {E['T3M_REV'][:7]}): HP5 Plus 400 HaldCLUT (sRGB), converted to ProPhoto with a gain
   that maps 18% gray to 18% gray.
+- Film LUTs Collection (git {E['FL_REV'][:7]}): G'MIC film emulation cubes (sRGB), converted the same way.
 
 Licenses (see licenses/)
 - spektrafilm looks: CC BY-SA 4.0, Andrea Volpato; LUT terms allow use and sharing, no resale.
 - Spectral Film LUT looks: MIT, Jan Lohse.
 - HP5 Plus 400: MIT, Joao Almeida.
+- Film LUTs Collection looks: MIT, Yahia Angelo.
 Film names identify simulated materials and may be trademarks of their owners.
 """
 
 xmps = sorted((R / "build/profiles").glob("*.xmp"))
 entries = {TOP + p.name: p.read_bytes() for p in xmps}
-for name in ("SPEKTRAFILM", "SPECTRAL_FILM_LUT", "T3MUJINPACK"):
+for name in ("SPEKTRAFILM", "SPECTRAL_FILM_LUT", "T3MUJINPACK", "FILM_LUTS"):
     entries[f"{TOP}licenses/{name}_LICENSE.txt"] = (LIC / f"{name}_LICENSE.txt").read_bytes()
 entries[TOP + "README.txt"] = README.format(n=len(xmps)).encode()
 

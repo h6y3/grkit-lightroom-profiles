@@ -1,6 +1,6 @@
 """Fail if any baked ProPhoto LUT moves 18% gray more than TOLERANCE stops away from 18% gray.
 
-usage: check_gray.py BUILD_PP_DIR   (sf/ and t3m/ cubes in ProPhoto gamma 1.8, sfl/ cubes in linear Rec.2020)
+usage: check_gray.py BUILD_PP_DIR   (sf/, t3m/ and fl/ cubes in ProPhoto gamma 1.8, sfl/ cubes in linear Rec.2020)
 An upstream update that trips this needs new exposure offsets from scripts/calibrate.py.
 """
 import sys
@@ -16,7 +16,7 @@ TOLERANCE = 0.25
 E_GRAY = 0.18 ** (1 / 1.8)
 
 bad = []
-for kind in ("sf", "sfl", "t3m"):
+for kind in ("sf", "sfl", "t3m", "fl"):
     for cube in sorted((Path(sys.argv[1]) / kind).glob("*.cube")):
         lut = read_cube(cube)
         grid = (np.linspace(0, 1, lut.shape[0]),) * 3

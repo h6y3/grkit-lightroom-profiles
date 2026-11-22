@@ -1,13 +1,13 @@
 # GRKit film looks for Lightroom
 
 This repo turns the film look collection of [GRKit](https://github.com/ahonn/GRKit) into Lightroom and
-Camera Raw creative profiles. GRKit fits its 18 film looks for Ricoh GR cameras from film simulation
+Camera Raw creative profiles. GRKit fits its 30 film looks for Ricoh GR cameras from film simulation
 LUTs. This repo rebakes the same film and print recipes for Lightroom's color pipeline and embeds
 each one in a `.xmp` profile you can import.
 
-Unofficial. Not affiliated with GRKit, Adobe, Kodak, Fujifilm, or Ilford.
+Unofficial. Not affiliated with GRKit, Adobe, Kodak, Fujifilm, Ilford, or Agfa.
 
-![All 18 looks applied to a test chart](docs/looks.png)
+![All 30 looks applied to a test chart](docs/looks.png)
 
 The chart is synthetic (ColorChecker reference colors, a hue sweep and a gray ramp) and the tables are
 decoded from the shipped profiles at Amount 100. Lightroom applies them to raw-processed data, so treat
@@ -21,15 +21,16 @@ Download `grkit-lightroom-profiles.zip` from the [latest release](../../releases
 - Lightroom (desktop): File > Import Profiles & Presets.
 - Camera Raw: Presets panel > "..." > Import Profiles & Presets.
 
-The profiles appear in three groups: "Film (spektrafilm)", "Film (Spectral Film LUT)" and "Film (t3mujinpack)".
+The profiles appear in four groups: "Film (spektrafilm)", "Film (Spectral Film LUT)", "Film (t3mujinpack)"
+and "Film (Film LUTs Collection)".
 
 ## Use
 
 - Set exposure first. Every profile maps 18% gray to 18% gray, so a well-exposed image keeps its brightness.
 - A profile replaces your current one; Lightroom applies one profile at a time.
 - The Amount slider runs from 0 to 200. Start near 50 to 70, because the film contrast is strong.
-- The B&W looks (Tri-X 400, Tri-X 400 Red Filter, Double-X 5222, HP5 Plus 400) output neutral gray
-  but leave Treatment set to Color.
+- The B&W looks (Tri-X 400, Tri-X 400 Red Filter, Double-X 5222, HP5 Plus 400, Neopan Acros, T-Max 400,
+  Delta 100, XP2 Super) output neutral gray but leave Treatment set to Color.
 - There is no grain or halation. Use Lightroom's Effects > Grain.
 
 ## Looks
@@ -47,6 +48,9 @@ The profiles appear in three groups: "Film (spektrafilm)", "Film (Spectral Film 
 | Kodachrome 64 | kodachrome-64-v1 | spektrafilm | CC BY-SA 4.0, no resale |
 | Velvia 100 | velvia-100-v1 | spektrafilm | CC BY-SA 4.0, no resale |
 | Ektachrome E100 | ektachrome-e100-v1 | spektrafilm | CC BY-SA 4.0, no resale |
+| Fujicolor C200 | c200-premier-v1 | spektrafilm | CC BY-SA 4.0, no resale |
+| UltraMax 400 | ultramax-400-ultra-v1 | spektrafilm | CC BY-SA 4.0, no resale |
+| Provia 100F | provia-100f-v1 | spektrafilm | CC BY-SA 4.0, no resale |
 | Tri-X 400 | trix-400-mono-v1 | Spectral Film LUT | MIT |
 | Tri-X 400 Red Filter | red-filter-mono-v1 | Spectral Film LUT | MIT |
 | Aerocolor IV | aerocolor-iv-v1 | Spectral Film LUT | MIT |
@@ -54,13 +58,23 @@ The profiles appear in three groups: "Film (spektrafilm)", "Film (Spectral Film 
 | Instax | instax-v1 | Spectral Film LUT | MIT |
 | Double-X 5222 | double-x-5222-mono-v1 | Spectral Film LUT | MIT |
 | HP5 Plus 400 | hp5-plus-400-mono-v1 | t3mujinpack | MIT |
+| Neopan Acros | neopan-acros-100-v1 | Film LUTs Collection | MIT |
+| T-Max 400 | t-max-400-v1 | Film LUTs Collection | MIT |
+| Delta 100 | delta-100-v1 | Film LUTs Collection | MIT |
+| XP2 Super | xp2-super-v1 | Film LUTs Collection | MIT |
+| Astia 100F | astia-100f-v1 | Film LUTs Collection | MIT |
+| Precisa 100 | precisa-100-v1 | Film LUTs Collection | MIT |
+| Portra 160 VC | portra-160-vc-v1 | Film LUTs Collection | MIT |
+| Fuji 160C | fuji-160c-v1 | Film LUTs Collection | MIT |
+| Vista 200 | vista-200-v1 | Film LUTs Collection | MIT |
 
 ## How it works
 
 - [spektrafilm](https://github.com/andreavolpato/spektrafilm) and
   [Spectral Film LUT](https://github.com/JanLohse/spectral_film_lut) bake each GRKit recipe as a 32³ LUT
   with ProPhoto RGB input instead of GRKit's V-Log. HP5 Plus 400 comes from a
-  [t3mujinpack](https://github.com/t3mujin/t3mujinpack) HaldCLUT, converted from sRGB to ProPhoto.
+  [t3mujinpack](https://github.com/t3mujin/t3mujinpack) HaldCLUT, and the nine Film LUTs Collection looks from
+  the [G'MIC film emulation cubes](https://github.com/YahiaAngelo/Film-Luts); both are converted from sRGB to ProPhoto.
 - Each look gets an exposure offset so 18% gray maps to 18% gray.
 - `scripts/cube2profile.py` stores the LUT as a Camera Raw RGB table (ProPhoto, gamma 1.8, Amount 0 to 200%),
   following the table format in the Adobe DNG SDK (`dng_big_table.cpp`).
@@ -80,7 +94,7 @@ Requires macOS or Linux with [uv](https://docs.astral.sh/uv/), git and curl. uv 
 | `update.sh` | Reports GRKit changes since the pin; `--apply` bumps the pin and rebuilds. |
 | `release.sh` | Publishes the zip as a GitHub Release of the current commit. |
 | `scripts/bake_sf_pp.py`, `bake_sfl_pp.py` | GRKit's bake scripts, adapted for ProPhoto in and out, 32³. |
-| `scripts/bake_hp5_pp.py` | Converts the HP5 HaldCLUT to a ProPhoto LUT with gray-matched exposure. |
+| `scripts/bake_display_pp.py` | Converts the sRGB looks (HP5 HaldCLUT, Film LUTs cubes) to ProPhoto LUTs with gray-matched exposure. |
 | `scripts/make_profiles.py` | Names, groups and wraps every LUT, then decodes each profile to check it. |
 | `scripts/cube2profile.py` | Profile writer and reader. |
 | `scripts/grkit_sync.py` | Reads library pins from GRKit's manifest and checks our recipes against GRKit's. |
@@ -95,12 +109,14 @@ bits of floating-point output.
 ## Updating
 
 GRKit owns the film recipes (`effects/NOTICE.md`, `effects/sources/`). Its `effects/sources/manifest.json`
-pins the spektrafilm, Spectral Film LUT and t3mujinpack commits, so this repo pins only GRKit.
+pins the spektrafilm, Spectral Film LUT, t3mujinpack and Film LUTs Collection commits (and the checksum of each
+Film LUTs cube), so this repo pins only GRKit.
 A weekly GitHub Action runs `./update.sh` and opens an issue when GRKit's effects change.
 
 1. `./update.sh` shows what changed in GRKit and whether its recipes and look list still match ours.
 2. If the check fails, port the change into `scripts/bake_*_pp.py`, and into `NAMES` in `make_profiles.py`
-   for a new look.
+   for a new look. A new spektrafilm look also goes into `SF_FILMS` in `build.sh`. Film LUTs Collection looks
+   need only a name, because `build.sh` reads the list from GRKit's manifest.
 3. `./update.sh --apply` bumps `pins.env` and rebuilds. Venvs reinstall when a library pin changes.
 4. If `check_gray.py` fails, rerun `scripts/calibrate.py` for the flagged looks and update the offsets in `build.sh`.
 5. Commit `pins.env` and `docs/looks.png`, push, then `./release.sh`.
@@ -122,6 +138,7 @@ A weekly GitHub Action runs `./update.sh` and opens an issue when GRKit's effect
     See `licenses/SPEKTRAFILM_LICENSE.txt`.
   - Spectral Film LUT looks: MIT, Jan Lohse (`licenses/SPECTRAL_FILM_LUT_LICENSE.txt`).
   - HP5 Plus 400: MIT, João Almeida (`licenses/T3MUJINPACK_LICENSE.txt`).
+  - Film LUTs Collection looks: MIT, Yahia Angelo (`licenses/FILM_LUTS_LICENSE.txt`).
 
 Film, paper and filter names identify the simulated materials and may be trademarks of their owners.
 The looks are simulations, not measured equivalents of the products.
